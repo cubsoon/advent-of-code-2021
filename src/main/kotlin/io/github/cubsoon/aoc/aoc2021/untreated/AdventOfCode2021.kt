@@ -1094,3 +1094,47 @@ fun d10_2021_b() {
     println("Corrupted score sum: $corruptedScoreSum")
     println("Middle incomplete score: ${incompleteScoreList.sorted()[incompleteScoreList.size / 2]}")
 }
+
+fun d20_2021() {
+    val input = input("d20_2021.txt")
+    val trn = input.lines().first().trim().toList()
+    val init = input.lines().drop(2).map { it.trim() }.map { it.toList() }
+
+    var outcolor = '.'
+    fun resOf(row: Int, col: Int, map: List<List<Char>>): Char {
+        val ix = listOf(
+            map.getOrNull(row - 1)?.getOrNull(col - 1) ?: outcolor,
+            map.getOrNull(row - 1)?.getOrNull(col) ?: outcolor,
+            map.getOrNull(row - 1)?.getOrNull(col + 1) ?: outcolor,
+            map.getOrNull(row)?.getOrNull(col - 1) ?: outcolor,
+            map.getOrNull(row)?.getOrNull(col) ?: outcolor,
+            map.getOrNull(row)?.getOrNull(col + 1) ?: outcolor,
+            map.getOrNull(row + 1)?.getOrNull(col - 1) ?: outcolor,
+            map.getOrNull(row + 1)?.getOrNull(col) ?: outcolor,
+            map.getOrNull(row + 1)?.getOrNull(col + 1) ?: outcolor
+        ).map {
+            when (it) {
+                '.' -> '0'
+                '#' -> '1'
+                else -> throw IllegalArgumentException()
+            }
+        }.joinToString("").toInt(2)
+        return trn[ix]
+    }
+
+    fun step(map: List<List<Char>>): List<List<Char>> {
+        val rows = map.size
+        val cols = map.first().size
+        return (-2..rows+1).map { row ->
+            (-2..cols+1).map { col ->
+                resOf(row, col, map)
+            }
+        }.also { outcolor = resOf(999999, 999999, map) }
+    }
+
+    var current = init
+    (1..50).forEach { _ ->
+        current = step(current)
+    }
+    println(current.flatten().count { it == '#' })
+}
